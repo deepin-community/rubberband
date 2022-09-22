@@ -1,0 +1,2 @@
+0001-Don-t-initialise-the-FPU-when-it-is-not-available.patch
+0002-Link-atomic-if-necessary.patch

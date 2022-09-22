@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+execute_before_dh_auto_build:
+	docbook-to-man debian/rubberband.sgml > debian/rubberband.1

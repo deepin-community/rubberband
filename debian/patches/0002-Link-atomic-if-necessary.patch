@@ -1,0 +1,38 @@
+From: Sebastian Ramacher <sramacher@debian.org>
+Date: Fri, 29 Oct 2021 11:15:29 +0200
+Subject: Link atomic if necessary
+
+---
+ meson.build | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index bf2f939..168f512 100644
+--- a/meson.build
++++ b/meson.build
+@@ -418,6 +418,25 @@ else
+   platform_static_name_suffix = 'a'
+ endif  
+ 
++test_atomic = '''
++#include <atomic>
++int main(void)
++{
++  std::atomic<int64_t> v;
++  v = -1;
++  return 0;
++}
++'''
++
++cxx = meson.get_compiler('cpp')
++if not cxx.links(test_atomic, name: 'std::atomic<int64_t> without libatomic')
++  libatomic = cxx.find_library('atomic', required: false)
++  if cxx.links(test_atomic, dependencies: libatomic, name: 'std::atomic<int64_t> with libatomic')
++    general_dependencies += libatomic
++  else
++    error('8-byte atomic operations are required')
++  endif
++endif
+ 
+ # And the build targets: Static and dynamic libraries, command-line
+ # utility, LADSPA plugin, Vamp plugin, JNI library

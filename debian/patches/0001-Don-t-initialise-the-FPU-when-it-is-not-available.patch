@@ -1,0 +1,21 @@
+From: Adrian Bunk <bunk@debian.org>
+Date: Fri, 17 Sep 2021 10:28:48 +0200
+Subject: Don't initialise the FPU when it is not available
+
+---
+ src/system/sysutils.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/system/sysutils.cpp b/src/system/sysutils.cpp
+index 71f304d..b99d992 100644
+--- a/src/system/sysutils.cpp
++++ b/src/system/sysutils.cpp
+@@ -189,7 +189,7 @@ void system_specific_initialise()
+     fesetenv(FE_DFL_DISABLE_DENORMS_ENV);
+ #endif
+ #endif
+-#if defined __ARMEL__
++#if defined(__ARMEL__) && !defined(__SOFTFP__)
+     // ARM32
+     static const unsigned int x = 0x04086060;
+     static const unsigned int y = 0x03000000;

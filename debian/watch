@@ -1,0 +1,3 @@
+version=4
+https://www.breakfastquay.com/rubberband \
+	.*/rubberband-(\d.\d.\d)\.tar\.bz2
