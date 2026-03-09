@@ -20,7 +20,7 @@ manpage.1: manpage.sgml
   <!ENTITY dhfirstname "<firstname>Szabolcs</firstname>">
   <!ENTITY dhsurname   "<surname>Székelyi</surname>">
   <!-- Please adjust the date whenever revising the manpage. -->
-  <!ENTITY dhdate      "<date>May 5, 2008</date>">
+  <!ENTITY dhdate      "<date>Oct 5, 2022</date>">
   <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
        allowed: see man(7), man(1). -->
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
@@ -84,7 +84,7 @@ manpage.1: manpage.sgml
     <title>OPTIONS</title>
 
     <para>These programs follow the usual &gnu; command line syntax,
-      with long options starting with two dashes (`-').  A summary of
+      with long options starting with two dashes (`--').  A summary of
       options is included below.</para>
 
     <para>You must specify at least one of the following time and
@@ -94,14 +94,25 @@ manpage.1: manpage.sgml
       <varlistentry>
         <term><option>-t</option>, <option>--time</option> <replaceable>X</replaceable></term>
         <listitem>
-          <para>Stretch to <replaceable>X</replaceable> times original
-            duration, or</para>
+          <para>Stretch to <replaceable>X</replaceable> times original duration, or</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term><option>-T</option>, <option>--tempo</option> <replaceable>X</replaceable></term>
         <listitem>
-          <para>Change tempo by multiple <replaceable>X</replaceable> (equivalent to --time 1/X)</para>
+          <para>Change tempo by multiple <replaceable>X</replaceable> (equivalent to --time 1/X), or</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-T</option>, <option>--tempo</option> <replaceable>X</replaceable>:<replaceable>Y</replaceable></term>
+        <listitem>
+          <para>Change tempo from <replaceable>X</replaceable> to <replaceable>Y</replaceable> (same as --time X/Y), or</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-D</option>, <option>--duration</option> <replaceable>X</replaceable></term>
+        <listitem>
+          <para>Stretch or squash to make output file <replaceable>X</replaceable> seconds long</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -118,91 +129,205 @@ manpage.1: manpage.sgml
       </varlistentry>
     </variablelist>
 
-    <para>The following option provides a simple way to adjust the
-      sound.  See below for more details.</para>
+    <para>The following options provide ways of making the time and frequency ratios
+	change during the audio:</para>
 
     <variablelist>
       <varlistentry>
-	<term><option>-n</option>, <option>--crisp</option> <replaceable>N</replaceable></term>
+	<term><option>-M</option>, <option>--timemap</option> <replaceable>F</replaceable></term>
+	<listitem>
+	  <para>Use file F as the source for time map</para>
+	</listitem>
+      </varlistentry>
+
+      <para>A time map (or key-frame map) file contains a series of lines, each with two
+	sample frame numbers separated by a single space. These are source and
+	target frames for fixed time points within the audio data, defining a varying
+	stretch factor through the audio. When supplying a time map you must specify
+	an overall stretch factor using -t, -T, or -D as well, to determine the
+	total output duration.</para>
+
+      <varlistentry>
+	<term>    <option>--pitchmap</option> <replaceable>F</replaceable></term>
+	<listitem>
+	  <para>Use file F as the source for pitch map</para>
+	</listitem>
+      </varlistentry>
+
+      <para>A pitch map file contains a series of lines, each with two values: the input
+	sample frame number and a pitch offset in semitones, separated by a single
+	space. These specify a varying pitch factor through the audio. The offsets
+	are all relative to an initial offset specified by the pitch or frequency
+	option, or relative to no shift if neither was specified. Offsets are
+	not cumulative. This option implies realtime mode (-R) and also enables a
+	high-consistency pitch shifting mode, appropriate for dynamic pitch changes.
+	Because of the use of realtime mode, the overall duration will not be exact.</para>
+
+      <varlistentry>
+	<term>    <option>--freqmap</option> <replaceable>F</replaceable></term>
+	<listitem>
+	  <para>Use file F as the source for freq map</para>
+	</listitem>
+      </varlistentry>
+      
+      <para>A frequency map file is like a pitch map, except that its second column
+	lists frequency multipliers rather than pitch offsets (like the difference
+	between pitch and frequency options above)</para>
+ 
+      <para>The following options affect the sound manipulation and quality</para>
+
+      <varlistentry>
+	<term><option>-2</option>, <option>--fast</option></term>
+	<listitem>
+	  <para>Use the R2 (faster) engine</para>
+	</listitem>
+      </varlistentry>
+
+      <para>This is the default (for backward compatibility) when this tool is invoked
+	as "rubberband". It was the only engine available in versions prior to v3.0.</para>
+
+      <varlistentry>
+	<term><option>-3</option>, <option>--fine</option></term>
+	<listitem>
+	  <para>Use the R3 (finer) engine</para>
+	</listitem>
+      </varlistentry>
+
+      <para>This is the default when this tool is invoked as "rubberband-r3". It almost
+	always produces better results than the R2 engine, but with significantly
+	higher CPU load.</para>
+
+      <varlistentry>
+	<term><option>-F</option>, <option>--formant</option></term>
+	<listitem>
+	  <para>Enable formant preservation when pitch shifting</para>
+	</listitem>
+      </varlistentry>
+
+      <para>This option attempts to keep the formant envelope unchanged when changing
+	the pitch, retaining the original timbre of vocals and instruments in a
+	recognisable way.</para>
+
+      <varlistentry>
+	<term><option>-c</option>, <option>--crisp</option> <replaceable>N</replaceable></term>
 	<listitem>
 	  <para>Crispness (N = 0,1,2,3,4,5); default 4 (see below)</para>
 	</listitem>
       </varlistentry>
+
+      <para>This option only has an effect when using the R2 (faster) engine. See below
+	for details of the different levels.</para>
     </variablelist>
 
-    <para>The remaining options fine-tune the processing mode and
-      stretch algorithm.  These are mostly included for test purposes;
-      the default settings and standard crispness parameter are
-      intended to provide the best sounding set of options for most
-      situations.</para>
+    <para>The remaining options fine-tune the processing mode and stretch algorithm.
+	The default is to use none of these options.
+	The options marked (2) currently only have an effect when using the R2 engine
+	(see -2, -3 options above).</para>
 
     <variablelist>
       <varlistentry>
-	<term><option>-P</option>, <option>--precise</option></term>
-	<listitem>
-	  <para>Aim for minimal time distortion (implied by -R)</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
 	<term><option>-R</option>, <option>--realtime</option></term>
 	<listitem>
-	  <para>Select realtime mode (implies -P --no-threads)</para>
+	  <para>Select realtime mode (implies --no-threads).
+		This utility does not do realtime stream processing;
+		the option merely selects realtime mode for the
+		stretcher it uses</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--no-threads</option></term>
 	<listitem>
-	  <para>No extra threads regardless of CPU and channel count</para>
+	  <para>No extra threads regardless of CPU and channel count (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--threads</option></term>
 	<listitem>
-	  <para>Assume multi-CPU even if only one CPU is identified</para>
+	  <para>Assume multi-CPU even if only one CPU is identified (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--no-transients</option></term>
 	<listitem>
-	  <para>Disable phase resynchronisation at transients</para>
+	  <para>Disable phase resynchronisation at transients (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--bl-transients</option></term>
 	<listitem>
-	  <para>Band-limit phase resync to extreme frequencies</para>
+	  <para>Band-limit phase resync to extreme frequencies (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
-	<term><option>--no-peaklock</option></term>
+	<term><option>--no-lamination</option></term>
 	<listitem>
-	  <para>Disable phase locking to peak frequencies</para>
+	  <para>Disable phase lamination (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
-	<term><option>--no-softening</option></term>
+	<term><option>--smoothing</option></term>
 	<listitem>
-	  <para>Disable large-ratio softening of phase locking</para>
+	  <para>Apply window presum and time-domain smoothing (R2)</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>--detector-perc</option></term>
+	<listitem>
+	  <para>Use percussive transient detector (as in pre-1.5) (R2)</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>--detector-soft</option></term>
+	<listitem>
+	  <para>Use soft transient detector (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--window-long</option></term>
 	<listitem>
-	  <para>Use longer processing window (actual size may vary)</para>
+	  <para>Use longer processing window (actual size may vary) (R2)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term><option>--window-short</option></term>
 	<listitem>
-	  <para>Use shorter processing window</para>
+	  <para>Use shorter processing window (with the R3 engine
+		this is effectively a quick "draft mode")</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
-	<term><option>--thresh</option> <replaceable>N</replaceable> <replaceable>F</replaceable></term>
+	<term><option>--pitch-hq</option></term>
 	<listitem>
-	  <para>Set internal freq threshold <replaceable>N</replaceable> (N = 0,1,2) to <replaceable>F</replaceable> Hz</para>
+	  <para>In RT mode, use a slower, higher quality pitch shift</para>
 	</listitem>
       </varlistentry>
+      <varlistentry>
+	<term><option>--centre-focus</option></term>
+	<listitem>
+	  <para>reserve focus of centre material in stereo
+		(at a cost in width and individual channel quality)</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>--ignore-clipping</option></term>
+	<listitem>
+	  <para>Ignore clipping at output; the default is to restart
+		with reduced gain if clipping occurs</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-L</option>, <option>--loose </option></term>
+	<listitem>
+	  <para>[Accepted for compatibility but ignored; always off]</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-P</option>, <option>---precise </option></term>
+	<listitem>
+	  <para>[Accepted for compatibility but ignored; always on]</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
       <varlistentry>
 	<term><option>-d</option>, <option>--debug</option> <replaceable>N</replaceable></term>
 	<listitem>
@@ -210,6 +335,11 @@ manpage.1: manpage.sgml
             (N.B. debug level 3 includes audible ticks in output)</para>
 	</listitem>
       </varlistentry>
+    </variablelist>      
+
+    <para>The following options are for output control and administration:</para>
+
+    <variablelist>      
       <varlistentry>
 	<term><option>-q</option>, <option>--quiet</option></term>
 	<listitem>
@@ -217,9 +347,21 @@ manpage.1: manpage.sgml
 	</listitem>
       </varlistentry>
       <varlistentry>
+	<term><option>-V</option>, <option>--version</option></term>
+	<listitem>
+	  <para>Show version number and exit</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
 	<term><option>-h</option>, <option>--help</option></term>
 	<listitem>
-	  <para>Show a list of available options</para>
+	  <para>Show the normal help output</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term><option>-H</option>, <option>--full-help</option></term>
+	<listitem>
+	  <para>Show the full help output</para>
 	</listitem>
       </varlistentry>
     </variablelist>
@@ -230,37 +372,43 @@ manpage.1: manpage.sgml
       <varlistentry>
 	<term>0</term>
 	<listitem>
-	  <para>equivalent to --no-transients --no-peaklock --window-long</para>
+	  <para>equivalent to --no-transients --no-lamination --window-long</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term>1</term>
 	<listitem>
-	  <para>equivalent to --no-transients --no-peaklock</para>
+	  <para>equivalent to --detector-soft --no-lamination --window-long (for piano)</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term>2</term>
 	<listitem>
-	  <para>equivalent to --no-transients</para>
+	  <para>equivalent to --no-transients --no-lamination</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term>3</term>
 	<listitem>
-	  <para>equivalent to --bl-transients</para>
+	  <para>equivalent to --no-transients</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term>4</term>
 	<listitem>
-	  <para>default processing options</para>
+	  <para>equivalent to --bl-transients</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
 	<term>5</term>
 	<listitem>
-	  <para>equivalent to --no-peaklock --window-short (may be suitable for drums)</para>
+	  <para>default processing options</para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>6</term>
+	<listitem>
+	  <para>equivalent to --no-lamination --window-short (may be good for drums)</para>
 	</listitem>
       </varlistentry>
     </variablelist>
@@ -271,7 +419,8 @@ manpage.1: manpage.sgml
 
     <para>Rubber Band was written by Chris Cannam &lt;cannam@all-day-breakfast.com&gt;.</para>
 
-    <para>This manual page was written by &dhusername; &lt;&dhemail;&gt; for
+    <para>This manual page was written by &dhusername; &lt;&dhemail;&gt; and
+      revised in October 2022 by Dennis Braun &lt;snd@y0o.de&gt; for
       the &debian; system (but may be used by others), because the
       original program does not have a manual page.  Permission is
       granted to copy, distribute and/or modify this document under
