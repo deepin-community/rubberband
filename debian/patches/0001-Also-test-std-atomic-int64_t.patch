@@ -1,0 +1,22 @@
+From: Sebastian Ramacher <sramacher@debian.org>
+Date: Sun, 8 Feb 2026 13:30:10 +0100
+Subject: Also test std::atomic<int64_t>
+
+---
+ meson.build | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index d4d845e..f70d9a1 100644
+--- a/meson.build
++++ b/meson.build
+@@ -148,7 +148,8 @@ libatomic_test_program = '''
+ int main() {
+     std::atomic<int> i;
+     std::atomic<double> d;
+-    return int(i.is_lock_free() && d.is_lock_free());
++    std::atomic<int64_t> i64;
++    return int(i.is_lock_free() && d.is_lock_free() && i64.is_lock_free());
+ }
+ '''
+ if cpp.compiles(libatomic_test_program, name : 'test program using std::atomic')

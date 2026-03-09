@@ -3,7 +3,7 @@
 /*
     Rubber Band Library
     An audio time-stretching and pitch-shifting library.
-    Copyright 2007-2021 Particular Programs Ltd.
+    Copyright 2007-2024 Particular Programs Ltd.
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -27,9 +27,10 @@
     This is a single-file compilation unit for Rubber Band Library.
   
     To use the library in your project without building it separately,
-    include in your code either rubberband/RubberBandStretcher.h for
-    use in C++ or rubberband/rubberband-c.h if you need the C
-    interface, then add this single C++ source file to your build.
+    include in your code either rubberband/RubberBandStretcher.h
+    and/or rubberband/RubberBandLiveShifter.h for use in C++, or
+    rubberband/rubberband-c.h if you need the C interface, then add
+    this single C++ source file to your build.
  
     Don't move this file into your source tree - keep it in the same
     place relative to the other Rubber Band code, so that the relative
@@ -44,6 +45,8 @@
     standalone library.
 */
 
+#ifndef ALREADY_CONFIGURED
+
 #define USE_BQRESAMPLER 1
 
 #define NO_TIMING 1
@@ -56,25 +59,30 @@
 #define USE_BUILTIN_FFT 1
 #endif
 
-#include "../src/audiocurves/CompoundAudioCurve.cpp"
-#include "../src/audiocurves/SpectralDifferenceAudioCurve.cpp"
-#include "../src/audiocurves/HighFrequencyAudioCurve.cpp"
-#include "../src/audiocurves/SilentAudioCurve.cpp"
-#include "../src/audiocurves/ConstantAudioCurve.cpp"
-#include "../src/audiocurves/PercussiveAudioCurve.cpp"
-#include "../src/base/Profiler.cpp"
-#include "../src/dsp/AudioCurveCalculator.cpp"
-#include "../src/dsp/FFT.cpp"
-#include "../src/dsp/Resampler.cpp"
-#include "../src/dsp/BQResampler.cpp"
-#include "../src/system/Allocators.cpp"
-#include "../src/system/sysutils.cpp"
-#include "../src/system/Thread.cpp"
-#include "../src/RubberBandStretcher.cpp"
-#include "../src/StretchCalculator.cpp"
-#include "../src/StretcherChannelData.cpp"
-#include "../src/StretcherImpl.cpp"
-#include "../src/StretcherProcess.cpp"
+#endif
 
+#include "../src/faster/AudioCurveCalculator.cpp"
+#include "../src/faster/CompoundAudioCurve.cpp"
+#include "../src/faster/HighFrequencyAudioCurve.cpp"
+#include "../src/faster/SilentAudioCurve.cpp"
+#include "../src/faster/PercussiveAudioCurve.cpp"
+#include "../src/common/Log.cpp"
+#include "../src/common/Profiler.cpp"
+#include "../src/common/FFT.cpp"
+#include "../src/common/Resampler.cpp"
+#include "../src/common/BQResampler.cpp"
+#include "../src/common/Allocators.cpp"
+#include "../src/common/StretchCalculator.cpp"
+#include "../src/common/sysutils.cpp"
+#include "../src/common/mathmisc.cpp"
+#include "../src/common/Thread.cpp"
+#include "../src/faster/StretcherChannelData.cpp"
+#include "../src/faster/R2Stretcher.cpp"
+#include "../src/faster/StretcherProcess.cpp"
+#include "../src/finer/R3Stretcher.cpp"
+#include "../src/finer/R3LiveShifter.cpp"
+
+#include "../src/RubberBandStretcher.cpp"
+#include "../src/RubberBandLiveShifter.cpp"
 #include "../src/rubberband-c.cpp"
 

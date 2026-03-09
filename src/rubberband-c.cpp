@@ -3,7 +3,7 @@
 /*
     Rubber Band Library
     An audio time-stretching and pitch-shifting library.
-    Copyright 2007-2021 Particular Programs Ltd.
+    Copyright 2007-2024 Particular Programs Ltd.
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 
 #include "../rubberband/rubberband-c.h"
 #include "../rubberband/RubberBandStretcher.h"
+#include "../rubberband/RubberBandLiveShifter.h"
 
 struct RubberBandState_
 {
@@ -53,6 +54,11 @@ void rubberband_reset(RubberBandState state)
     state->m_s->reset();
 }
 
+int rubberband_get_engine_version(RubberBandState state)
+{
+    return state->m_s->getEngineVersion(); 
+}
+
 void rubberband_set_time_ratio(RubberBandState state, double ratio)
 {
     state->m_s->setTimeRatio(ratio);
@@ -73,9 +79,29 @@ double rubberband_get_pitch_scale(const RubberBandState state)
     return state->m_s->getPitchScale();
 }
 
+void rubberband_set_formant_scale(RubberBandState state, double scale)
+{
+    state->m_s->setFormantScale(scale);
+}
+
+double rubberband_get_formant_scale(const RubberBandState state)
+{
+    return state->m_s->getFormantScale();
+}
+
+unsigned int rubberband_get_preferred_start_pad(const RubberBandState state) 
+{
+    return (unsigned int)state->m_s->getPreferredStartPad();
+}
+
+unsigned int rubberband_get_start_delay(const RubberBandState state) 
+{
+    return (unsigned int)state->m_s->getStartDelay();
+}
+
 unsigned int rubberband_get_latency(const RubberBandState state) 
 {
-    return state->m_s->getLatency();
+    return (unsigned int)state->m_s->getLatency();
 }
 
 void rubberband_set_transients_option(RubberBandState state, RubberBandOptions options)
@@ -110,12 +136,17 @@ void rubberband_set_expected_input_duration(RubberBandState state, unsigned int 
 
 unsigned int rubberband_get_samples_required(const RubberBandState state)
 {
-    return state->m_s->getSamplesRequired();
+    return (unsigned int)state->m_s->getSamplesRequired();
 }
 
 void rubberband_set_max_process_size(RubberBandState state, unsigned int samples)
 {
     state->m_s->setMaxProcessSize(samples);
+}
+
+unsigned int rubberband_get_process_size_limit(RubberBandState state)
+{
+    return (unsigned int)state->m_s->getProcessSizeLimit();
 }
 
 void rubberband_set_key_frame_map(RubberBandState state, unsigned int keyframecount, unsigned int *from, unsigned int *to)
@@ -144,12 +175,12 @@ int rubberband_available(const RubberBandState state)
 
 unsigned int rubberband_retrieve(const RubberBandState state, float *const *output, unsigned int samples)
 {
-    return state->m_s->retrieve(output, samples);
+    return (unsigned int)state->m_s->retrieve(output, samples);
 }
 
 unsigned int rubberband_get_channel_count(const RubberBandState state)
 {
-    return state->m_s->getChannelCount();
+    return (unsigned int)state->m_s->getChannelCount();
 }
 
 void rubberband_calculate_stretch(RubberBandState state)
@@ -167,3 +198,83 @@ void rubberband_set_default_debug_level(int level)
     RubberBand::RubberBandStretcher::setDefaultDebugLevel(level);
 }
 
+struct RubberBandLiveState_
+{
+    RubberBand::RubberBandLiveShifter *m_s;
+};
+
+RubberBandLiveState rubberband_live_new(unsigned int sampleRate,
+                                        unsigned int channels,
+                                        RubberBandOptions options)
+{
+    RubberBandLiveState_ *state = new RubberBandLiveState_();
+    state->m_s = new RubberBand::RubberBandLiveShifter
+        (sampleRate, channels, options);
+    return state;
+}
+
+void rubberband_live_delete(RubberBandLiveState state)
+{
+    delete state->m_s;
+    delete state;
+}
+
+void rubberband_live_reset(RubberBandLiveState state)
+{
+    state->m_s->reset();
+}
+
+void rubberband_live_set_pitch_scale(RubberBandLiveState state, double scale)
+{
+    state->m_s->setPitchScale(scale);
+}
+
+double rubberband_live_get_pitch_scale(const RubberBandLiveState state)
+{
+    return state->m_s->getPitchScale();
+}
+
+void rubberband_live_set_formant_scale(RubberBandLiveState state, double scale)
+{
+    state->m_s->setFormantScale(scale);
+}
+
+double rubberband_live_get_formant_scale(const RubberBandLiveState state)
+{
+    return state->m_s->getFormantScale();
+}
+
+unsigned int rubberband_live_get_start_delay(const RubberBandLiveState state) 
+{
+    return (unsigned int)state->m_s->getStartDelay();
+}
+
+void rubberband_live_set_formant_option(RubberBandLiveState state, RubberBandOptions options)
+{
+    state->m_s->setFormantOption(options);
+}
+
+unsigned int rubberband_live_get_block_size(RubberBandLiveState state)
+{
+    return (unsigned int)state->m_s->getBlockSize();
+}
+
+void rubberband_live_shift(RubberBandLiveState state, const float *const *input, float *const *output)
+{
+    state->m_s->shift(input, output);
+}
+
+unsigned int rubberband_live_get_channel_count(const RubberBandLiveState state)
+{
+    return (unsigned int)state->m_s->getChannelCount();
+}
+
+void rubberband_live_set_debug_level(RubberBandLiveState state, int level)
+{
+    state->m_s->setDebugLevel(level);
+}
+
+void rubberband_live_set_default_debug_level(int level)
+{
+    RubberBand::RubberBandStretcher::setDefaultDebugLevel(level);
+}

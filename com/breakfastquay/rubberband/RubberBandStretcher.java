@@ -3,7 +3,7 @@
 /*
     Rubber Band Library
     An audio time-stretching and pitch-shifting library.
-    Copyright 2007-2014 Particular Programs Ltd.
+    Copyright 2007-2022 Particular Programs Ltd.
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -22,6 +22,9 @@
 */
 
 package com.breakfastquay.rubberband;
+
+import java.util.Map;
+import java.util.Set;
 
 public class RubberBandStretcher
 {
@@ -45,6 +48,8 @@ public class RubberBandStretcher
     public native double getTimeRatio();
     public native double getPitchScale();
 
+    public native int getPreferredStartPad();
+    public native int getStartDelay();
     public native int getLatency();
 
     public native void setTransientsOption(int options);
@@ -54,11 +59,25 @@ public class RubberBandStretcher
     public native void setPitchOption(int options);
 
     public native void setExpectedInputDuration(long samples);
+    public native int getProcessSizeLimit();
     public native void setMaxProcessSize(int samples);
 
     public native int getSamplesRequired();
 
-    //!!! todo: setKeyFrameMap
+    public native void setKeyFrameMap(long[] from, long[] to);
+    public void setKeyFrameMap(Map<Long, Long> m) {
+        Set<Long> keys = m.keySet();
+        int n = keys.size();
+        long[] from = new long[n];
+        long[] to = new long[n];
+        int i = 0;
+        for (Long k : keys) {
+            from[i] = k.longValue();
+            to[i] = m.get(k).longValue();
+            ++i;
+        }
+        setKeyFrameMap(from, to);
+    }
 
     public native void study(float[][] input, int offset, int n, boolean finalBlock);
     public void study(float[][] input, boolean finalBlock) {
@@ -119,6 +138,9 @@ public class RubberBandStretcher
 
     public static final int OptionChannelsApart        = 0x00000000;
     public static final int OptionChannelsTogether     = 0x10000000;
+
+    public static final int OptionEngineFaster         = 0x00000000;
+    public static final int OptionEngineFiner          = 0x20000000;
 
     public static final int DefaultOptions             = 0x00000000;
     public static final int PercussiveOptions          = 0x00102000;

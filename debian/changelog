@@ -1,8 +1,151 @@
-rubberband (2.0.0-2deepin0) unstable; urgency=medium
+rubberband (4.0.0+dfsg-2) unstable; urgency=medium
 
-  * No source change upload against GCC 12.
+  * Team upload
+  * Uploader to unstable
+  * debian/control:
+    - Drop RRR: no
+    - Drop Priority: optional
+    - Bump Standards-Version
+    - Remove unused cmake build dependency
+  * debian/patches: Refresh check for std::atomic<int64_t>
 
- -- Tianyu Chen <sweetyfish@deepin.org>  Fri, 20 Sep 2024 12:18:05 +0800
+ -- Sebastian Ramacher <sramacher@debian.org>  Sun, 08 Feb 2026 13:31:31 +0100
+
+rubberband (4.0.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 4.0.0+dfsg
+  * Bump SONAME: librubberband2 -> librubberband3
+  * Change B-D from pkg-config to pkgconf
+  * Bump Standards-Version to 4.7.0
+  * Bump d/copyright years
+  * Refresh patchset
+
+ -- Dennis Braun <snd@debian.org>  Tue, 11 Feb 2025 18:07:34 +0100
+
+rubberband (3.3.0+dfsg-2) unstable; urgency=medium
+
+  * Increase the test timeout to 10mins (Closes: #1050501)
+    Because the Stretcher test on armel still takes > 5mins.
+
+ -- Dennis Braun <snd@debian.org>  Fri, 25 Aug 2023 14:25:23 +0200
+
+rubberband (3.3.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 3.3.0+dfsg
+  * Refresh patchset
+
+ -- Dennis Braun <snd@debian.org>  Wed, 02 Aug 2023 20:34:50 +0200
+
+rubberband (3.2.1+dfsg-6) unstable; urgency=medium
+
+  * debian/control: Add dependency on libfftw3-dev (Closes: #1041255)
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Sun, 16 Jul 2023 22:21:30 +0200
+
+rubberband (3.2.1+dfsg-5) unstable; urgency=medium
+
+  * Disable Stretcher test on powerpc, ppc64 and ppc64el
+    because it fails with SIGinvalid
+  * Fix spelling error in d/changelog
+
+ -- Dennis Braun <snd@debian.org>  Thu, 29 Jun 2023 17:43:44 +0200
+
+rubberband (3.2.1+dfsg-4) unstable; urgency=medium
+
+  * Multiply the timeout for unit tests by 10 (5mins)
+    Some archs still need >30secs for the Strecher test
+
+ -- Dennis Braun <snd@debian.org>  Wed, 28 Jun 2023 19:43:09 +0200
+
+rubberband (3.2.1+dfsg-3) unstable; urgency=medium
+
+  * Use libsamplerate and libfftw from system
+  * Use default timeout for unit tests again
+
+ -- Dennis Braun <snd@debian.org>  Wed, 28 Jun 2023 18:25:07 +0200
+
+rubberband (3.2.1+dfsg-2) unstable; urgency=medium
+
+  * Multiply the timeout for the unit tests by 3
+  * Add a patch to tweak the threshold of the Stretcher test
+
+ -- Dennis Braun <snd@debian.org>  Tue, 27 Jun 2023 22:27:23 +0200
+
+rubberband (3.2.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 3.2.1+dfsg
+    + Omit the repack count
+  * Bump Standards-Version to 4.6.2
+  * Bump d/copyright years
+  * d/watch: Use @ARCHIVE_EXT@ for the download link
+  * Disable Stretcher Test on i386, because it fails on CI with timeout
+
+ -- Dennis Braun <snd@debian.org>  Tue, 20 Jun 2023 12:29:27 +0200
+
+rubberband (3.1.2+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.1.2+dfsg0
+  * Refresh patchset
+
+ -- Dennis Braun <snd@debian.org>  Sat, 03 Dec 2022 19:42:06 +0100
+
+rubberband (3.1.1+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.1.1+dfsg0
+  * Change my email address to snd@debian.org
+
+ -- Dennis Braun <snd@debian.org>  Mon, 28 Nov 2022 22:18:12 +0100
+
+rubberband (3.1.0+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.1.0+dfsg0
+  * Refresh and reformat patchset. Drop armel fpu patch, applied by upstream
+  * Add libboost-test-dev to B-Ds to enable unit tests
+    and add cmake and speexdsp support
+  * Add an autopkgtest that uses two timestretch functions of rubberband
+  * Revise the manpage (Closes: #921946)
+  * Link the manpage to the new engine
+
+ -- Dennis Braun <d_braun@kabelmail.de>  Sun, 09 Oct 2022 17:00:28 +0200
+
+rubberband (3.0.0+dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 3.0.0+dfsg0
+  * Provide the lv2 plugin
+  * Bump Standards Version to 4.6.1
+  * d/copyright: Update Files-Excluded
+  * d/copyright: Update paths to external libs
+  * Add usr/bin/rubberband-r3 to rubberband-cli installation
+  * Refresh patchset
+
+ -- Dennis Braun <d_braun@kabelmail.de>  Sun, 31 Jul 2022 21:01:21 +0200
+
+rubberband (2.0.2+dfsg0-2) unstable; urgency=medium
+
+  * Team upload
+  * debian/patches: Fix build if linking to libatomic is required
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Mon, 18 Apr 2022 22:33:55 +0200
+
+rubberband (2.0.2+dfsg0-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Dennis Braun ]
+  * New upstream version 2.0.1+dfsg0
+  * Exclude src/getopt/* files because of wrong license and they are unused.
+    + Use github in d/watch for now
+  * Update d/copyright: Update years and remove  src/getopt/* and BSD-4-clause
+  * Refresh patchset
+  * Add d/upstream/metadata
+  * Add salsa ci config
+  * d/gbp.conf: Remove compression
+
+  [ Sebastian Ramacher ]
+  * debian/watch: Rename from vX.Y to rubberband-X.Y
+  * New upstream version 2.0.2+dfsg0
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Sat, 02 Apr 2022 21:01:00 +0200
 
 rubberband (2.0.0-2) unstable; urgency=medium
 

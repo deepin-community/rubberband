@@ -1,2 +1,1 @@
-0001-Don-t-initialise-the-FPU-when-it-is-not-available.patch
-0002-Link-atomic-if-necessary.patch
+0001-Also-test-std-atomic-int64_t.patch

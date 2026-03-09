@@ -1,4 +1,218 @@
 
+Changes in Rubber Band v4.0
+
+This release adds a new API that is simpler than the existing one in
+cases where only pitch-shifting is required.
+
+ * Add a new API, RubberBandLiveShifter, which is simpler to use
+   than the general RubberBandStretcher interface in cases where only
+   pitch-shifting is required. For more general purposes the original
+   interface is still the proper one.
+ * Fix incorrect URIs in LV2 plugins
+ * Fix stack overflow in seldom used R2 time-domain smoothing code
+ * Add support for key-frame maps (and the live shifter) to JNI interface
+ * Fix some compatibility issues and warnings with certain compilers
+
+Apart from this entirely new class, the rest of the API is unchanged
+and the library is binary compatible with existing code back to
+version 1.7.
+
+
+Changes in Rubber Band v3.3
+
+This is a bug-fix release with no changes to audio quality.
+
+ * Fix incorrect output with unexpectedly large buffers in process
+ * Add getProcessSizeLimit to query the maximum buffer length for
+   process and highest supported value for setMaxProcessSize
+ * Fix formal test failure in some contexts
+
+One new function has been added to the API. The library is otherwise
+binary compatible with existing code back to version 1.7.
+
+
+Changes in Rubber Band v3.2.1
+
+This is a build-fix release with no new features.
+
+ * Fix formal test failure in build configurations using other
+   resamplers than the built-in one
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.2
+
+This significant release contains a number of improvements, including
+some output quality enhancements for certain processing modes.
+
+ * Fix inability of the R3 engine to produce mono-compatible output
+   when processing stereo. In R2 the OptionChannelsTogether option has
+   always done this (with some quality caveats). In R3 this option was
+   more nearly mono-compatible than the default, but not
+   entirely. With this release, OptionChannelsTogether uses a new
+   method that is both high quality and mono-compatible and is
+   recommended for situations benefiting from this.
+ * Correct the start delay calculation in "resample-before" modes of
+   both stretcher engines. This affects latency reporting in realtime
+   mode when using the non-recommended realtime pitch options
+   (i.e. those other than OptionPitchHighConsistency, which is the
+   recommended option for variable-rate use in realtime mode)
+ * Relatedly, fix failure to use OptionPitchHighConsistency in R3
+   LADSPA/LV2 plugins
+ * Fix small difference in output from R3 engine depending on whether
+   time and pitch ratios were provided on construction or immediately
+   after it
+ * Expand automated tests
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.1.3
+
+This is a bug-fix release with no new features or changes to audio
+quality.
+
+ * Fix failure to generate output when called with final=true and no
+   samples at input (a regression in v3.1, this worked correctly in
+   v3.0 and in the R2 engine)
+ * Fix occasional truncation of final block when using Speex resampler
+ * Fix hang in the command-line utility code at end of processing with
+   certain file formats
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.1.2
+
+This minor release contains a small number of build fixes.
+
+ * Make all optional targets manually toggleable, using Meson
+   "features" options (see COMPILING.md for documentation)
+ * Further fix to JNI autodetection, following that of 3.1.1 -
+   hopefully solving the problem completely this time!
+ * Correct the source file listing in the Android makefile
+ * Fix build with NO_EXCEPTIONS, e.g. for Android
+ * Fix required #includes for mingw32 builds
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.1.1
+
+This minor release contains no code changes, only a fix to the build
+system.
+
+ * Fix failure to configure and build on some systems without a Java
+   compiler. Java/JNI support is entirely optional in Rubber Band, but
+   auto-detection of whether to build it or not was failing in certain
+   environments: this broke the normal build process for some users.
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.1
+
+This significant release contains many enhancements that can improve
+performance, as well as a number of bug fixes.
+
+ * Add support for "short window" mode, OptionWindowShort, to the new
+   R3 processing engine. This option previously only took effect with
+   the R2 engine. When used with R3 it disables the R3 multi-window
+   logic while retaining R3's signal analysis, yielding output with
+   some of the quality advantages of R3 (especially for non-percussive
+   content) but with far lower CPU usage and processing delay.
+ * Implement OptionPitchHighSpeed in the R3 engine. Previously it
+   always used OptionPitchHighConsistency internally. With this option
+   real-time pitch-shifting upwards becomes much faster, at the
+   expense of some output quality. (However OptionPitchHighConsistency
+   is still always necessary to avoid artifacts when performing
+   dynamic pitch changes.)
+ * Add support for the SLEEF library (libsleefdft) for FFTs. In
+   our tests this library approaches the performance of vDSP and IPP
+   and improves on the other supported options.
+ * Add support for external Speex library (libspeexdsp) for
+   resampling. This is a very fast resampler, significantly improved
+   over the older Speex code that has historically been bundled with
+   Rubber Band. It may still introduce a little more audible noise on
+   ratio changes than the built-in resampler.
+ * Update the R2 engine so that it always restores vertical phase
+   coherence gradually when returning to a ratio of 1.0 (as R3 also
+   does) rather than waiting for silence or a transient.
+ * Update R3 to properly support all sample rates between 8000 and
+   192000 Hz.
+ * Update command-line utility so as to use the extension of the
+   output filename to determine the file type to write. Previously
+   the output was always the same format as the input file,
+   regardless of extension.
+ * Remove support for libresample. This integration has not been
+   exercised in many years and other resamplers are better options.
+ * Fix several bugs, including a crash when run with very low sample
+   rates.
+
+The API is unchanged from 3.0 and the library is binary compatible
+back to version 1.7.
+
+
+Changes in Rubber Band v3.0.0
+
+ * Introduce a new processing engine, the R3 (Finer) engine, which
+   typically produces higher-quality output than the existing R2
+   engine, though at significantly higher CPU cost. The R2 engine is
+   still the default, and R3 can be selected using the new
+   OptionEngineFiner option on construction. See the documentation for
+   more details.
+ * Add ability to provide a custom set of log callbacks, so that
+   debug and warning logs can be routed to the application's log
+   stream and/or handled in a realtime-safe way
+ * Add option to shift formant independently of pitch (R3 engine
+   only)
+ * Deprecate the rather ambiguous function getLatency(), effectively
+   replacing it with two new functions getPreferredStartPad() and
+   getStartDelay(). See their documentation for more details
+
+The library is both binary and API compatible all the way back to the
+1.x series for existing applications.  Code written to use 3.0 is not
+necessarily compatible with 2.x or 1.x, as several new functions and
+enum values have been added, but code written to use any earlier
+version can update to 3.0 without modification (and will continue to
+use the same processing engine if the calling code is unchanged).
+
+
+Changes in Rubber Band v2.0.2
+
+ * Fix a crash in certain configurations when using mid-side
+   processing (OptionChannelsTogether) with pitch shifts
+ * Fix failure to build on very old macOS versions (<= 10.8) when
+   combined with much newer compilers
+
+The API is unchanged and the library is binary compatible back to
+version 1.7.
+
+
+Changes in Rubber Band v2.0.1
+
+ * Add a preliminary LV2 version of the example pitch-shifter plugin,
+   and update the existing LADSPA version to fix failure of the wet/dry
+   control to work correctly under in-place use
+ * Make the built-in resampler (introduced in v2.0.0) the default for
+   all builds, and use it in the official packaged versions of the
+   command-line utility. External resampler libraries are still
+   available as build options
+ * A couple of build fixes, including supporting the proper Meson
+   option (default_library=shared/static/both) at configuration time
+   to choose which type of library to build, instead of the custom
+   option used since v1.9.1
+
+The API is unchanged and the library is binary compatible back to
+version 1.7.
+
+
 Changes in Rubber Band v2.0.0
 
  * Introduce a built-in resampler, intended to minimise artifacts on

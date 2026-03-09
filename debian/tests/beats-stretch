@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Author: Dennis Braun <d_braun@kabelmail.de>
+#
+# These rubberband tests tests two type of timestretch functions with rubberband 2 & 3,
+# and the result of the output files are tested by sox and bpm-tools.
+
+set -e
+
+# Possibly you need to change the regex, if you change the bpm
+bpm=91
+regex="($bpm\.[0-1][0-4][0-4])"
+rubberband_versions=$(ls /usr/bin/rubberband*)
+
+echo -e '\033[1m:: Copy beats.wav from csound-doc ::\033[0m'
+cp /usr/share/doc/csound-doc/html/examples/beats.wav.gz .
+gunzip beats.wav.gz
+
+for R in $rubberband_versions; do
+	echo -e '\033[1m:: Test1' $R': Stretch beats.wav from 119.9 BPM to' $bpm 'BPM ::\033[0m'
+	$R -T119.9:$bpm beats.wav beats_stretched.wav
+
+	echo -e '\033[1m:: Test2' $R': Stretch beats.wav from 2 seconds to 4 seconds ::\033[0m'
+	$R -t2 beats.wav beats_double_duration.wav
+
+	echo -e '\033[1m:: RESULT Test1' $R': Check with sox and bpm-tools if the BPM is correct ::\033[0m'
+	bpmresult="$(sox -V1 'beats_stretched.wav' -r 44100 -e float -c 1 -t raw - | bpm)"
+	
+	if [[ $bpmresult =~ $regex ]]; then
+		echo -e '\e[32mSuccessfully\e[0m detected' $bpmresult 'BPM'
+	else
+		echo -e '\e[31mUnsuccessfully :(\e[0m' 'The result is' $bpmresult 'BPM'
+		exit 1
+	fi
+
+	echo -e '\033[1m:: RESULT Test2' $R': Check with soxi the time duration ::\033[0m'
+	durationresult="$(soxi -D beats_double_duration.wav)"
+	
+	if [[ $durationresult =~ 4.000000 ]]; then
+		echo -e '\e[32mSuccessfully\e[0m detected the stretch from 2s to 4s'
+	else
+		echo -e '\e[31mUnsuccessfully :(\e[0m The result is' $durationresult
+		exit 1
+	fi
+done
+exit 0
